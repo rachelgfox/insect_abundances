@@ -1,4 +1,6 @@
 .Rproj.user
 .Rhistory
 .RData
+Data/
+.DS_Store
 test.txt
