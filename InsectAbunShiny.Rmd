@@ -36,9 +36,6 @@ We can see then, that there are patterns that can be analyzed by family and othe
 
 
 
-
-
-
 References:
 1) David Moreno-Mateos, http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3265451/
 2) http://academic.reed.edu/es/messef.html
@@ -199,12 +196,13 @@ w.timeseries <- ggplot(weather, aes(x=date, y=TemperatureAvgF)) +
                 xlab("Date") + ylab("Avg. Temperature in F˚")+
                 ggtitle(paste(paste("Average Temperature from", startdate, "to", enddate)))+
                 theme_minimal()
-               
-grid.newpage() 
-      pushViewport(viewport(layout = grid.layout(11, 1)))
-      print(map, vp = viewport(layout.pos.row = 1:7, layout.pos.col = 1))
-      print(i.timeseries, vp = viewport(layout.pos.row = 8:9, layout.pos.col = 1)) 
-      print(w.timeseries, vp = viewport(layout.pos.row = 10:11, layout.pos.col = 1)) 
+
+
+               grid.newpage() 
+      pushViewport(viewport(layout = grid.layout(9, 1)))
+      print(map, vp = viewport(layout.pos.row = 1:5, layout.pos.col = 1))
+      print(i.timeseries, vp = viewport(layout.pos.row = 6:7, layout.pos.col = 1)) 
+      print(w.timeseries, vp = viewport(layout.pos.row = 8:9, layout.pos.col = 1)) 
       
     }, height = 800, width = 800 )
 
@@ -224,9 +222,13 @@ output$table <- renderDataTable({
 
 mainPanel(
     tabsetPanel(
-      tabPanel('Graphs',
-               plotOutput("plot")),
-      tabPanel('Table',
-               dataTableOutput("table"))))
+      tabPanel('graphs', plotOutput("plot", height="auto") ),
+      tabPanel('table',
+               dataTableOutput("table"))) )
+
+
+      
+
+    
 
 ```
