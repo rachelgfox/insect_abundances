@@ -22,9 +22,13 @@ When insect counts per trap by family are superimposed on the trap locations, it
 
 For certain families and orders however, this is not true. One striking example is Lepidoptera (O. Lepidoptera, oversize moths). During breeding season, there are huge numbers of these moths that breed near oak trees. For this reason, they are found primarily in locations where there are large numbers of oak trees. This favored traps that were placed as terrestrial controls (M1, O1, S1, R1, L1) rather than traps closer to the water.
 
+In addition, insect abundances peak during the summer for the breeding season. This is heavily correlated with temperature, which we can see in the two plots for temperature and insect abundance over time. 
+
+We can see then, that there are patterns that can be analyzed by family and other groups that may tell us more about how insects interact with their environment. This analysis is useful as it allows us examine relationships between wetland ecosystems and the invertebrates that live there, and ultimately will serve to help us better understand ecosystem function.
+
+
 <img src="rachelmarsh.jpg" align="middle" height="400" width="400" margin="0 auto" />
 
-In addition, insect abundances peak during the summer for the breeding season. This is heavily correlated with temperature, which we can see in the two plots for temperature and insect abundance over time.
 
 
 
