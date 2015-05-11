@@ -5,3 +5,5 @@ Data/
 .DS_Store
 test.txt
 CleanData.R
+ShinyMap.Rmd
+insectabundance.html

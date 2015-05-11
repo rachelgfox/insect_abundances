@@ -9,11 +9,15 @@ suppressPackageStartupMessages(library(lubridate))
 suppressPackageStartupMessages(library(RColorBrewer))
 
 #Cleaning
-insects<- read.csv("./Data/insectcounts_na.csv", header=TRUE) %>%
+insectcount<- read.csv("./Data/insectcounts_na.csv", header=TRUE) %>%
           tbl_df() %>%
           gather(family,n, 4:67) %>%
           mutate(date=mdy(date)) %>%
           transmute(date,bottle.name,family,n)
+
+#using stringR and combining with trap locations.
+
+insects <- mutate(insectcount, )
                     
 #Extracting data and creating data for plotting
 

@@ -5,7 +5,19 @@ output: html_document
 runtime: shiny
 ---
 
-Data used for this project was collected in 2012 and 2013 under David Moreno-Mateos at Jasper Ridge Biological Preserve (Stanford University). All data was used with permission. GIS Shapefiles and weather data prior to April 2013 were provided by JRBP for expressed use in this project. Weather data from April 2013 and beyond was taken from Weather Underground weather station at JRBP, available online.  
+Data used for this project was collected in 2012 and 2013 under David Moreno-Mateos at Jasper Ridge Biological Preserve (Stanford University), and all data was used with permission. GIS Shapefiles and weather data prior to April 2013 were provided by JRBP for expressed use in this project. Weather data from April 2013 and beyond was taken from Weather Underground weather station at JRBP, available online. 
+
+Previous analyses of these data included examining insect flux across terrestrial and wetland habitats (1, 2, 3). Insects were captured in malaise traps, which are tent like structures that capture insects that fly into them, and crawl upwards to escape, only to fall into bottles to be collected.
+
+
+
+This data analysis and visualization only takes into account relative abundances, but introduces new data regarding weather and vegetation near trap sites. The goal of this project is to visualize any potential differences in abundances around the different habitats in the preserve. Over the course of the project, traps were located at 5 sites throughout the preserve, Middle Marsh (M), San Francisquito Creek (R), Skipper's Pond (S),  the west bank of Searsville Lake (L), and the east bank (opposite side) of Searsville Lake (O). Middle Marsh is the east-most set of traps, with 6 individual traps at two points (M1,M2,M3 & M3,M4,M5). San Francisquito is the northern-most site, with three traps. 
+
+References:
+1) David Moreno-Mateos, http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3265451/
+2) http://academic.reed.edu/es/messef.html
+3) http://academic.reed.edu/es/assets/images/Fox_2013_MESSE.jpg
+
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 suppressPackageStartupMessages(library(shiny))
@@ -51,12 +63,6 @@ insects <- insectcount %>%
 insectloc <- inner_join(insects, traplocations, by="trap.name") %>%
                 tbl_df() 
 
-zoomcoords <- insectcount %>%
-              group_by(date, location, trap.name, family) %>%
-              summarise(count=sum(n))%>%
-              inner_join(traplocations, by="trap.name") %>%
-              inner_join(locationcoord, by="location")
-
 
 # for total abundance timeseries
 insectsum <- insectcount %>% 
@@ -87,7 +93,7 @@ veg.df <- inner_join(veg.map, jr.vegfile@data, by="id") %>%
 #Overall Map
 #google map access
 google.map <-
-  get_map(location = "Searsville Lake, San Mateo County, CA", maptype = "hybrid", zoom = 16, color = "color")
+  get_map(location = "Searsville Lake, San Mateo County, CA", maptype = "hybrid", zoom = 15, color = "color")
 
 
 ```
@@ -119,8 +125,6 @@ inputPanel(
 "rophidoptera", "dolichopodidae"), selected = "total.count", multiple= TRUE
   ),
 
-selectInput("zoom", label="Zoom to Traps", choices=c("all", "L","S","O","M","R"), selected= "all"),
-
 submitButton("Submit")
 )
 
@@ -131,27 +135,7 @@ renderPlot({
       date.range <- interval(startdate, enddate)
       
       familynames <- input$family
-      zoomfocus <- input$zoom
-      
-      zoomfocus <- c("L")
-      
-google2.map <- get_map(location = ifelse(zoomfocus="all", "Searsville Lake, San Mateo County, CA",
-                                        ifelse(zoomfocus="L", "37.40498, -122.2388",
-                                          ifelse(zoomfocus="S","37.39544, -122.2387",
-                                                 ifelse(zoomfocus="O", "37.40572, -122.2369", 
-                                                        ifelse(zoomfocus="M", "37.40167,-122.2423",
-                                                               ifelse(zoomfocus="R", "37.41012, -122.2384",.)))))), 
-                      maptype = "hybrid", 
-                      zoom = ifelse(zoomfocus="all", 16,
-                                        ifelse(zoomfocus="L", 18,
-                                          ifelse(zoomfocus="S", 18,
-                                                 ifelse(zoomfocus="O", 18,
-                                                         ifelse(zoomfocus="M", 18,
-                                                                 ifelse(zoomfocus="R", 18,.)))))), color = "color")
-
-ggmap(google2.map)
-                      
-                      
+   
       insectgraph <- filter(insectloc, family %in% familynames ) %>%
                      filter(date %within% date.range)
       
@@ -159,18 +143,12 @@ ggmap(google2.map)
                     filter(date %within% date.range)
       
       weather <- filter(weather, date %within% date.range)
-    
-      
-      zoomgraphL <-
-      zoomgraphM <-
-      zoomgraphS <-
-      zoomgraphO <-
-  
+ 
       
 # Make map.  
 map <-  ggmap(google.map)+
         geom_polygon(data=veg.df, 
-                     aes(x=long, y=lat, group=group, fill=Vegetation),alpha=0.3) +
+                     aes(x=long, y=lat, group=group, fill=Vegetation),alpha=0.2) +
         geom_path(data=trails.map, 
                      aes(x=long, y=lat, group=group),col="black", size=0.2) +
         geom_point(data=insectgraph, 
