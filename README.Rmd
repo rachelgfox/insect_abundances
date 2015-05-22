@@ -48,13 +48,6 @@ insectloc <- inner_join(insects, traplocations, by="trap.name") %>%
 
      
 #Extracting data and creating data for plotting
-##Trails
-
-jr.trailsfile <- readOGR(dsn="./Data/JR_TRAILS", layer="JR_TRAILS", verbose=FALSE) %>%
-                 spTransform(CRS("+proj=longlat +ellps=WGS84")) 
-
-trails.map <- fortify(jr.trailsfile)
-trail.data <-jr.trailsfile@data %>% tbl_df()
 
 ##Vegetation
 jr.vegfile <- readOGR(dsn="./Data/JRVEG_SHAPEFILE", layer="JR_vegetation_2012", 
@@ -76,8 +69,6 @@ google.map <-
  ggmap(google.map)+
         geom_polygon(data=veg.df, 
                      aes(x=long, y=lat, group=group, fill=Vegetation),alpha=0.2) +
-        geom_path(data=trails.map, 
-                     aes(x=long, y=lat, group=group),col="black", size=0.2) +
         geom_point(data=insectloc, 
                      aes(x=long, y=lat, size=count, color="red"), alpha=0.5)+
         scale_color_brewer(palette="Set1")+

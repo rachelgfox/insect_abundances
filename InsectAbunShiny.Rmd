@@ -213,7 +213,7 @@ plotOutput("plot", height="auto")
                               #  filter(date %within% date.range)
                               
                             # weather <- filter(weather, date %within% date.range)
-                               insecttime})
+                               #insecttime})
 
 # If adding a data table is desired: 
 #mainPanel(
