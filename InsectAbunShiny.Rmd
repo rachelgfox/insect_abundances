@@ -20,7 +20,7 @@ First, I plotted GIS shapefiles with information on vegetation on top of a satel
 
 When insect counts per trap by family are superimposed on the trap locations, it is easy to see that for most families of insects, they are heavily abundant in the marsh habitats and less so in the lake habitats. 
 
-For certain families and orders however, this is not true. One striking example is Lepidoptera (O. Lepidoptera, oversize moths). During breeding season, there are huge numbers of these moths that breed near oak trees. For this reason, they are found primarily in locations where there are large numbers of oak trees. This favored traps that were placed as terrestrial controls (M1, O1, S1, R1, L1) rather than traps closer to the water.
+For certain families and orders however, this is not true. One striking example is Lepidoptera (O. Lepidoptera, oversize moths). During breeding season, there are huge numbers of these moths that breed near oak trees. For this reason, they are found primarily in locations where there are large numbers of oak trees. This favored traps that were placed as terrestrial controls rather than traps closer to the water.
 
 In addition, insect abundances peak during the summer for the breeding season. This is heavily correlated with temperature, which we can see in the two plots for temperature and insect abundance over time. 
 
@@ -38,8 +38,9 @@ We can see then, that there are patterns that can be analyzed by family and othe
 
 References:
 1) David Moreno-Mateos, http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3265451/
-2) http://academic.reed.edu/es/messef.html
-3) http://academic.reed.edu/es/assets/images/Fox_2013_MESSE.jpg
+2) jrbp.stanford.edu
+3) http://academic.reed.edu/es/messef.html
+4) http://academic.reed.edu/es/assets/images/Fox_2013_MESSE.jpg
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
@@ -93,13 +94,6 @@ insectsum <- insectcount %>%
              summarise(count=sum(n))
      
 #Extracting data and creating data for plotting
-##Trails
-
-jr.trailsfile <- readOGR(dsn="./Data/JR_TRAILS", layer="JR_TRAILS", verbose=FALSE) %>%
-                 spTransform(CRS("+proj=longlat +ellps=WGS84")) 
-
-trails.map <- fortify(jr.trailsfile)
-trail.data <-jr.trailsfile@data %>% tbl_df()
 
 ##Vegetation
 jr.vegfile <- readOGR(dsn="./Data/JRVEG_SHAPEFILE", layer="JR_vegetation_2012", 
@@ -172,8 +166,6 @@ output$plot<-renderPlot({
 map <-  ggmap(google.map)+
         geom_polygon(data=veg.df, 
                      aes(x=long, y=lat, group=group, fill=Vegetation),alpha=0.2) +
-        geom_path(data=trails.map, 
-                     aes(x=long, y=lat, group=group),col="black", size=0.2) +
         geom_point(data=insectgraph, 
                      aes(x=long, y=lat, size=count, color=family), alpha=0.5)+
         scale_color_brewer(palette="Set1")+
@@ -206,25 +198,29 @@ w.timeseries <- ggplot(weather, aes(x=date, y=TemperatureAvgF)) +
       
     }, height = 800, width = 800 )
 
+# Use this for no table
+plotOutput("plot", height="auto")
 
-output$table <- renderDataTable({
-                              startdate <- input$daterange[1]
-                              enddate <- input$daterange[2]
-                              date.range <- interval(startdate, enddate)
-                              familynames <- input$family
-                              insectgraph <- filter(insectloc, family %in% familynames ) %>%
-                                filter(date %within% date.range)
-                              insecttime <- filter(insectsum, family %in% familynames) %>%
-                                filter(date %within% date.range)
+#data table code 
+#output$table <- renderDataTable({
+                             # startdate <- input$daterange[1]
+                              #enddate <- input$daterange[2]
+                              #date.range <- interval(startdate, enddate)
+                             # familynames <- input$family
+                           # insectgraph <- filter(insectloc, family %in% familynames ) %>%
+                               # filter(date %within% date.range)
+                              #insecttime <- filter(insectsum, family %in% familynames) %>%
+                              #  filter(date %within% date.range)
                               
-                              weather <- filter(weather, date %within% date.range)
+                            # weather <- filter(weather, date %within% date.range)
                                insecttime})
 
-mainPanel(
-    tabsetPanel(
-      tabPanel('graphs', plotOutput("plot", height="auto") ),
-      tabPanel('table',
-               dataTableOutput("table"))) )
+# If adding a data table is desired: 
+#mainPanel(
+    #tabsetPanel(
+      #tabPanel('graphs', plotOutput("plot", height="auto") ),
+     # tabPanel('table',
+               #dataTableOutput("table"))) )
 
 
       
