@@ -20,6 +20,17 @@ suppressMessages(library(stringr))
 suppressMessages(library(devtools))
 suppressMessages(if (!require("leaflet")) devtools::install_github("rstudio/leaflet"))
 suppressMessages(library(leaflet))
+suppressPackageStartupMessages(library(shiny))
+suppressPackageStartupMessages(library(rgdal))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(stringr))
+suppressPackageStartupMessages(library(rvest))
+suppressPackageStartupMessages(library(tidyr))
+suppressPackageStartupMessages(library(maps))
+suppressPackageStartupMessages(library(ggmap))
+suppressPackageStartupMessages(library(lubridate))
+suppressPackageStartupMessages(library(RColorBrewer))
+suppressPackageStartupMessages(require(gridExtra))
 
 
 
@@ -53,33 +64,42 @@ veg.df <- inner_join(veg.map, jr.vegfile@data, by="id") %>%
           rename(Vegetation=CNDDB1)
 
 
-leaflet(insectloc) %>%
-  addTiles() %>%
-  setView(-93.65, 42.0285, zoom = 4) %>%
-  addCircles(insectloc$long, insectloc$lat) %>%
-  addPopups(insectloc$long, insectloc$lat, paste(insectloc$trapname, '!', sep=''))
-
-
-
-
-
-
-
-
 inputPanel(
-  selectInput("n_breaks", label = "Number of bins:",
-              choices = c(10, 20, 35, 50), selected = 20),
+  dateRangeInput("daterange", "Date range:",
+               start = "2012-05-30",
+               end   = "2013-07-10",
+               format = "MM-dd-yy",
+               min = "2012-05-30",
+               max = "2013-07-10"
+               ),
   
-  sliderInput("bw_adjust", label = "Bandwidth adjustment:",
-              min = 0.2, max = 2, value = 1, step = 0.2)
+  selectInput("family", label = "Insect Family",
+               choices = c("total.count", "s.acalyptrata", "acalyptrata", "s.calyptrata", "calyptrata", "auchenorrhynca", "o.auchenorrhyncha", "polyphaga", "o.polyphaga", 
+"s.apocrita", "apocrita", "o.apocrita", "p.apocrita", "formicidae", 
+"vespidae", "anthrophila", "chironomidae", "o.chironomidae", 
+"sciaridae", "mycetophilidae", "o.mycetophilidae", "cecydomidae", 
+"empidoidea", "o.empidoidea", "platypezidae", "phoroidea", "o.phoroi", 
+"sternorrhyca", "o.sternorrhyncha", "psocoptera", "odonata", 
+"syrphoidia", "o.syrphoidea", "s.lepidoptera", "lepidoptera", 
+"o.lepidoptera", "lepidoptera.2", "psychodomorpha", "neuroptera", 
+"tipulomorpha", "o.tipulomorpha", "heteroptera", "o.heterop", 
+"tingidae", "plannipenia", "o.plannipenia", "tricoptera", "o.tricoptera", 
+"symphyta", "ceratopogonidae", "xylophagomorpha", "tabanomorpha", 
+"thysanoptera", "scathophagidae", "ephemeridae", "asilidae", 
+"culicidae", "isoptera", "simuliidae", "lonchopteridae", "plecoptera", 
+"rophidoptera", "dolichopodidae"), selected = "total.count", multiple= TRUE
+  ),
+
+submitButton("Submit")
 )
 
 renderPlot({
-  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
-       xlab = "Duration (minutes)", main = "Geyser eruption duration")
   
-  dens <- density(faithful$eruptions, adjust = input$bw_adjust)
-  lines(dens, col = "blue")
+leaflet(insectloc) %>%
+  addTiles() %>%
+  setView(-93.65, 42.0285, zoom = 4) %>%
+  addCircles(insectloc$long, insectloc$lat, radius=count)
+
 })
 ```
 

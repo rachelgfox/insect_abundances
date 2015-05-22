@@ -1,55 +1,27 @@
 ---
-title: "Insect Abundance Mapping at Jasper Ridge Biological Preserve"
+title: "Fox_Insect_Abundances"
 author: "Rachel Fox"
+date: "May 22, 2015"
 output: html_document
 runtime: shiny
 ---
-
-Data used for this project was collected in 2012 and 2013 under David Moreno-Mateos at Jasper Ridge Biological Preserve (Stanford University), and all data was used with permission. GIS Shapefiles and weather data prior to April 2013 were provided by JRBP for expressed use in this project. Weather data from April 2013 and beyond was taken from Weather Underground weather station at JRBP, available online. 
-
-Previous analyses of these data included examining insect flux across terrestrial and wetland habitats (1, 2, 3). Insects were captured in malaise traps, which are tent like structures that capture flying insects. The insects hit the trap and crawl upwards to escape, only to fall into bottles (full of soapy water) to be collected (lucky us). These bottles containing insects were then taken back to the lab where bugs were strained out, identified to order, infraorder or family (as low as we could ID), dried in an oven, and ground into dust for isotopic analysis. 
-
-
-<img src="marsh.jpg" align="middle" height="600" width="400" margin="0 auto" />
-<img src="dryinginsects.jpg" align="middle" height="600" width="400" margin="0 auto" />
-
-
-This data analysis and visualization only takes into account relative abundances, but introduces new data regarding weather and vegetation near trap sites. The goal of this project is to visualize any potential differences in abundances around the different habitats in the preserve. Over the course of the project, traps were located at 5 sites throughout the preserve, Middle Marsh (M), San Francisquito Creek (R), Skipper's Pond (S),  the west bank of Searsville Lake (L), and the east bank (opposite side) of Searsville Lake (O). Middle Marsh is the east-most set of traps, with 6 individual traps at two points (M1,M2,M3 & M3,M4,M5). San Francisquito is the northern-most site, with three traps (R1, R2, R3). Skipper's Pond (S1, S2, S3) is the southern-most site. Finally, The east bank of Searsville (O) also had three traps (O1, O2, O3).
-
-First, I plotted GIS shapefiles with information on vegetation on top of a satellite google image of Jasper Ridge for context. The vegetation types that are important to take note of are Bog and Marsh, Riparian and Bottomland Habitat, and Broad Leafed Upland Tree Dominated landscapes. These are the vegetation types that surround each trap. For marsh traps, we expected high abundances of insects as there is ample vegetation and shallow water to breed in. We predicted lake traps to have lower abundances of insects, as the open water allows for more consumption by predators (like Dragonfly larvae that emerge from the water). Leaving the lake habitats could be an indication of predator avoidance. The riparian habitat that surrounds the creek, and Skipper's pond are both smaller water bodies that would be suitible for insects, but perhaps not attract as many as the Marsh. 
-
-When insect counts per trap by family are superimposed on the trap locations, it is easy to see that for most families of insects, they are heavily abundant in the marsh habitats and less so in the lake habitats. 
-
-For certain families and orders however, this is not true. One striking example is Lepidoptera (O. Lepidoptera, oversize moths). During breeding season, there are huge numbers of these moths that breed near oak trees. For this reason, they are found primarily in locations where there are large numbers of oak trees. This favored traps that were placed as terrestrial controls rather than traps closer to the water.
-
-In addition, insect abundances peak during the summer for the breeding season. This is heavily correlated with temperature, which we can see in the two plots for temperature and insect abundance over time. 
-
-We can see then, that there are patterns that can be analyzed by family and other groups that may tell us more about how insects interact with their environment. This analysis is useful as it allows us examine relationships between wetland ecosystems and the invertebrates that live there, and ultimately will serve to help us better understand ecosystem function.
-
-
-<img src="rachelmarsh.jpg" align="middle" height="400" width="400" margin="0 auto" />
-
-
-References:
-1) David Moreno-Mateos, http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3265451/
-2) jrbp.stanford.edu
-3) http://academic.reed.edu/es/messef.html
-4) http://academic.reed.edu/es/assets/images/Fox_2013_MESSE.jpg
-
-
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 suppressPackageStartupMessages(library(shiny))
+suppressPackageStartupMessages(library(BH))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(rgdal))
+suppressPackageStartupMessages(library(rgeos))
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(stringr))
 suppressPackageStartupMessages(library(rvest))
 suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(maps))
+suppressPackageStartupMessages(library(maptools))
 suppressPackageStartupMessages(library(ggmap))
 suppressPackageStartupMessages(library(lubridate))
 suppressPackageStartupMessages(library(RColorBrewer))
 suppressPackageStartupMessages(require(gridExtra))
+gpclibPermit()
 
 #Insect Counts and Timeseries
 insectcount<- read.csv("./Data/insectcounts_na.csv", header=TRUE) %>%
@@ -194,31 +166,4 @@ w.timeseries <- ggplot(weather, aes(x=date, y=TemperatureAvgF)) +
 
 # Use this for no table
 plotOutput("plot", height="auto")
-
-#data table code 
-#output$table <- renderDataTable({
-                             # startdate <- input$daterange[1]
-                              #enddate <- input$daterange[2]
-                              #date.range <- interval(startdate, enddate)
-                             # familynames <- input$family
-                           # insectgraph <- filter(insectloc, family %in% familynames ) %>%
-                               # filter(date %within% date.range)
-                              #insecttime <- filter(insectsum, family %in% familynames) %>%
-                              #  filter(date %within% date.range)
-                              
-                            # weather <- filter(weather, date %within% date.range)
-                               #insecttime})
-
-# If adding a data table is desired: 
-#mainPanel(
-    #tabsetPanel(
-      #tabPanel('graphs', plotOutput("plot", height="auto") ),
-     # tabPanel('table',
-               #dataTableOutput("table"))) )
-
-
-      
-
-    
-
 ```
