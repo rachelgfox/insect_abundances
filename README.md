@@ -7,5 +7,3 @@ Analysis of flying insect abundances in relation to temperature, vegetation type
 
 This github also includes code for a shiny app that allows one to select insect family and time period and render corresponding plots.
 
-
-![](README_files/figure-html/unnamed-chunk-1-1.png) 
