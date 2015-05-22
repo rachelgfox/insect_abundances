@@ -7,20 +7,110 @@ runtime: shiny
 ---
 
 ```{r, echo=FALSE}
+pkg <- c("httr", "rjson", "dplyr", "stringr", "devtools", "leaflet")
+new.pkg <- pkg[!(pkg %in% installed.packages())]
+if (length(new.pkg)) {
+  install.packages(new.pkg)
+}
+
+suppressMessages(library(httr))
+suppressMessages(library(rjson))
+suppressMessages(library(dplyr))
+suppressMessages(library(stringr))
+suppressMessages(library(devtools))
+suppressMessages(if (!require("leaflet")) devtools::install_github("rstudio/leaflet"))
+suppressMessages(library(leaflet))
+
+suppressPackageStartupMessages(library(shiny))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(rgdal))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(stringr))
+suppressPackageStartupMessages(library(rvest))
+suppressPackageStartupMessages(library(tidyr))
+suppressPackageStartupMessages(library(maps))
+suppressPackageStartupMessages(library(ggmap))
+suppressPackageStartupMessages(library(lubridate))
+suppressPackageStartupMessages(library(RColorBrewer))
+suppressPackageStartupMessages(require(gridExtra))
+
+
+
+#insect count data
+insectcount<- read.csv("./Data/insectcounts_na.csv", header=TRUE) %>%
+              tbl_df() %>% 
+              gather(family,n, 5:68) %>%
+              mutate(date=mdy(date)) %>%
+              transmute(date, bottle.name, location, trap.name, family, n)
+
+traplocations <- read.csv("./Data/traplocations.csv",header=TRUE) %>%
+                 tbl_df()
+
+insects <- insectcount %>% 
+                group_by(date, trap.name, family) %>%
+                summarise(count=sum(n))
+insectloc <- inner_join(insects, traplocations, by="trap.name") %>%
+                tbl_df() 
+
+#GIS extraction
+
+jr.vegfile <- readOGR(dsn="./Data/JRVEG_SHAPEFILE", layer="JR_vegetation_2012", 
+              verbose=FALSE) %>%
+              spTransform(CRS("+proj=longlat +ellps=WGS84")) 
+
+jr.vegfile@data$id = rownames(jr.vegfile@data)
+
+veg.map <- fortify(jr.vegfile, region="id") %>% tbl_df()
+veg.df <- inner_join(veg.map, jr.vegfile@data, by="id") %>%
+          filter(CNDDB1 %in% c("Bog and Marsh", "Broad Leafed Upland Tree Dominated", "Coniferous Upland Forest and Woodland", "Grass and Herb Dominated Communities", "Riparian and Bottomland Habitat", "Scrub and Chaparral")) %>%
+          rename(Vegetation=CNDDB1)
+
+
 inputPanel(
-  selectInput("n_breaks", label = "Number of bins:",
-              choices = c(10, 20, 35, 50), selected = 20),
+  dateRangeInput("daterange", "Date range:",
+               start = "2012-05-30",
+               end   = "2013-07-10",
+               format = "MM-dd-yy",
+               min = "2012-05-30",
+               max = "2013-07-10"
+               ),
   
-  sliderInput("bw_adjust", label = "Bandwidth adjustment:",
-              min = 0.2, max = 2, value = 1, step = 0.2)
+  selectInput("family", label = "Insect Family",
+               choices = c("total.count", "s.acalyptrata", "acalyptrata", "s.calyptrata", "calyptrata", "auchenorrhynca", "o.auchenorrhyncha", "polyphaga", "o.polyphaga", 
+"s.apocrita", "apocrita", "o.apocrita", "p.apocrita", "formicidae", 
+"vespidae", "anthrophila", "chironomidae", "o.chironomidae", 
+"sciaridae", "mycetophilidae", "o.mycetophilidae", "cecydomidae", 
+"empidoidea", "o.empidoidea", "platypezidae", "phoroidea", "o.phoroi", 
+"sternorrhyca", "o.sternorrhyncha", "psocoptera", "odonata", 
+"syrphoidia", "o.syrphoidea", "s.lepidoptera", "lepidoptera", 
+"o.lepidoptera", "lepidoptera.2", "psychodomorpha", "neuroptera", 
+"tipulomorpha", "o.tipulomorpha", "heteroptera", "o.heterop", 
+"tingidae", "plannipenia", "o.plannipenia", "tricoptera", "o.tricoptera", 
+"symphyta", "ceratopogonidae", "xylophagomorpha", "tabanomorpha", 
+"thysanoptera", "scathophagidae", "ephemeridae", "asilidae", 
+"culicidae", "isoptera", "simuliidae", "lonchopteridae", "plecoptera", 
+"rophidoptera", "dolichopodidae"), selected = "total.count", multiple= TRUE
+  ),
+
+submitButton("Submit")
 )
 
 renderPlot({
-  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
-       xlab = "Duration (minutes)", main = "Geyser eruption duration")
   
-  dens <- density(faithful$eruptions, adjust = input$bw_adjust)
-  lines(dens, col = "blue")
+  # Inputs and Variables.    
+      startdate <- input$daterange[1]
+      enddate <- input$daterange[2]
+      date.range <- interval(startdate, enddate)
+      
+      familynames <- input$family
+   
+      leafletplot <- filter(insectloc, family %in% familynames ) %>%
+                     filter(date %within% date.range)
+  
+leaflet(leafletplot) %>%
+  addTiles() %>%
+  setView(37.408017, -122.230830, zoom = 20) %>%
+  addCircles(leafletplot$long, leafletplot$lat, color= family)
 })
 ```
 
