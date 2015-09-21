@@ -8,3 +8,6 @@ CleanData.R
 ShinyMap.Rmd
 insectabundance.html
 InsectAbunShiny.Rmd
+Insect_Abundances.Rmd
+ggmapTemp.png
+LeafletInsectMap.Rmd
